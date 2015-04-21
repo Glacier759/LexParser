@@ -34,6 +34,7 @@ public class LexParser {
         symbolSet.add(new Symbol(";", TYPE_BORDER));
         symbolSet.add(new Symbol(",", TYPE_BORDER));
         symbolSet.add(new Symbol(":", TYPE_BORDER));
+        symbolSet.add(new Symbol("\"", TYPE_BORDER));
 
         symbolSet.add(new Symbol("+", TYPE_OPERATOR));
         symbolSet.add(new Symbol("-", TYPE_OPERATOR));
@@ -60,6 +61,7 @@ public class LexParser {
         symbolSet.add(new Symbol("/=", TYPE_OPERATOR));
         symbolSet.add(new Symbol(">=", TYPE_OPERATOR));
         symbolSet.add(new Symbol("<=", TYPE_OPERATOR));
+        symbolSet.add(new Symbol("#", TYPE_OPERATOR));
 
         symbolSet.add(new Symbol("main", TYPE_KEYWORDS));
         symbolSet.add(new Symbol("auto", TYPE_KEYWORDS));
@@ -98,7 +100,6 @@ public class LexParser {
 
     public static void main(String[] args) {
         LexParser parser = new LexParser();
-
         parser.inputData(new File("hello.c")).parser();
 
     }
@@ -109,7 +110,7 @@ public class LexParser {
             StringBuffer dataBuffer = new StringBuffer();
             String dataLine = null;
             while( (dataLine = bufferedReader.readLine()) != null ) {
-                dataBuffer.append(dataLine);
+                dataBuffer.append(dataLine + "\n");
             }
             bufferedReader.close();
             return inputData(dataBuffer.toString());
@@ -127,12 +128,11 @@ public class LexParser {
 
     public LexParser parser() {
 
-        char[] dataCharArray = data.toCharArray();
-        for ( int index = 0; index < dataCharArray.length; index ++ ) {
-            char character = dataCharArray[index];
+        for ( int index = 0; index < data.length(); index ++ ) {
+            char character = data.charAt(index);
             //System.out.println("character: [" + character + "]");
             //表示遇到的是正常字符，并非【空格】与【终止字符】【运算符】
-            if ( character != ' ' && character != '\t' && judgeSymbol(character).getType() != TYPE_BORDER && judgeSymbol(character).getType() != TYPE_OPERATOR ) {
+            if ( character != ' ' && character !='\n' && character != '\t' && judgeSymbol(character).getType() != TYPE_BORDER && judgeSymbol(character).getType() != TYPE_OPERATOR ) {
                 symbolBuffer.append(character);
             }
             else {
@@ -153,16 +153,42 @@ public class LexParser {
                 symbolBuffer.delete(0, symbolBuffer.length());  //清空buffer
 
                 if ( judgeSymbol(character).getType() == TYPE_OPERATOR ) {
-                    if ( (symbol = judgeSymbol(character + "" + dataCharArray[index+1])).getType() == TYPE_OPERATOR ) {
+                    String nextSymbol = character + "" + data.charAt(index+1);
+                    //处理运算符占两个字符的情况
+                    if ( (symbol = judgeSymbol(nextSymbol)).getType() == TYPE_OPERATOR ) {
                         System.out.println(symbol);
                         index ++;
+                    }
+                    else if ( nextSymbol.equals("/*") ) {   //处理/**/形式的注释内容
+                        while( !(data.charAt(index) + "" + data.charAt(++index)).equals("*/") );
+                    }
+                    else if ( nextSymbol.equals("//")  ) {  //处理//形式的注释内容
+                        while( !(data.charAt(++index)+"").equals("\n") );
+                    }
+                    else if ( character == '#' ) {          //处理#include语句
+                        while( !(data.charAt(index)+""+data.charAt(index+1)).equals(">\n") &&
+                                !(data.charAt(index)+""+data.charAt(index+1)).equals("\"\n") &&
+                                !(data.charAt(index)+""+data.charAt(++index)).equals(")\n"));
                     }
                     else {
                         System.out.println(judgeSymbol(character));
                     }
                 }
-                else if ( judgeSymbol(character).getType() == TYPE_BORDER ) {
+                else if ( judgeSymbol(character).getType() == TYPE_BORDER ) {   //如果是分隔符的话
+
                     System.out.println(judgeSymbol(character));
+
+                    //处理被双引号包裹的字符串
+                    if ( character == '\"' ) {
+                        StringBuffer quoteStr = new StringBuffer();
+                        while( !(data.charAt(++index)+"").equals("\"") ) {
+                            quoteStr.append(data.charAt(index));
+                        }
+                        symbol = new Symbol(quoteStr.toString(), TYPE_VARIABLE);
+                        symbolSet.add(symbol);
+                        System.out.println(symbol);
+                        System.out.println(judgeSymbol("\""));
+                    }
                 }
             }
         }

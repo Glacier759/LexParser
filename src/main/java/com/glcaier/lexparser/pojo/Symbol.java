@@ -104,16 +104,16 @@ public class Symbol {   //符号类   说名一个符号的内容、类型、编
         String returnStr = null;
         switch( this.type ) {
             case LexParser.TYPE_BORDER:
-                returnStr = "[\tBORDER  \t" + number + "\t" + symbol;
+                returnStr = "\tBORDER  \t" + number + "\t" + symbol;
                 break;
             case LexParser.TYPE_OPERATOR:
-                returnStr = "[\tOPERATOR\t" + number + "\t" + symbol;
+                returnStr = "\tOPERATOR\t" + number + "\t" + symbol;
                 break;
             case LexParser.TYPE_KEYWORDS:
-                returnStr = "[\tKEYWORDS\t" + number + "\t" + symbol;
+                returnStr = "\tKEYWORDS\t" + number + "\t" + symbol;
                 break;
             case LexParser.TYPE_VARIABLE:
-                returnStr = "[\tVARIABLE\t" + number + "\t" + symbol;
+                returnStr = "\tVARIABLE\t" + number + "\t" + symbol;
                 break;
         }
         return returnStr;
