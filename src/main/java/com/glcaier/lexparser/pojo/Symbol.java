@@ -11,7 +11,7 @@ public class Symbol {   //符号类   说名一个符号的内容、类型、编
     public String symbol;
     public int type, number;
 
-    public static int border_num = 0, operator_num = 0, keywords_num = 0, variable_num = 0;
+    public static int border_num = 0, operator_num = 0, keywords_num = 0, variable_num = 0, variable_const_num = 0, digital_num = 0;
 
     public Symbol( String symbol, int type ) {
         this.symbol = symbol;
@@ -33,6 +33,14 @@ public class Symbol {   //符号类   说名一个符号的内容、类型、编
             case LexParser.TYPE_VARIABLE:
                 variable_num ++;
                 this.number = variable_num;
+                break;
+            case LexParser.TYPE_CONST_VARIABLE:
+                variable_const_num ++;
+                this.number = variable_const_num;
+                break;
+            case LexParser.TYPE_DIGITAL:
+                digital_num ++;
+                this.number = digital_num;
                 break;
             case LexParser.TYPE_NULL:
                 this.number = 0;
@@ -104,16 +112,22 @@ public class Symbol {   //符号类   说名一个符号的内容、类型、编
         String returnStr = null;
         switch( this.type ) {
             case LexParser.TYPE_BORDER:
-                returnStr = "\tBORDER  \t" + number + "\t" + symbol;
+                returnStr = "\tBORDER  \t\t" + number + "\t" + symbol;
                 break;
             case LexParser.TYPE_OPERATOR:
-                returnStr = "\tOPERATOR\t" + number + "\t" + symbol;
+                returnStr = "\tOPERATOR\t\t" + number + "\t" + symbol;
                 break;
             case LexParser.TYPE_KEYWORDS:
-                returnStr = "\tKEYWORDS\t" + number + "\t" + symbol;
+                returnStr = "\tKEYWORDS\t\t" + number + "\t" + symbol;
                 break;
             case LexParser.TYPE_VARIABLE:
-                returnStr = "\tVARIABLE\t" + number + "\t" + symbol;
+                returnStr = "\tVARIABLE\t\t" + number + "\t" + symbol;
+                break;
+            case LexParser.TYPE_DIGITAL:
+                returnStr = "\tDIGITAL  \t\t" + number + "\t" + symbol;
+                break;
+            case LexParser.TYPE_CONST_VARIABLE:
+                returnStr = "\tCONSE_VARIABLE\t" + number + "\t" + symbol;
                 break;
         }
         return returnStr;

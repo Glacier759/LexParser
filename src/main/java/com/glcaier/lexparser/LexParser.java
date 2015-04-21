@@ -19,6 +19,9 @@ public class LexParser {
     public static final int TYPE_OPERATOR = 002;    //表示运算符
     public static final int TYPE_KEYWORDS = 003;    //表示关键字
     public static final int TYPE_VARIABLE = 004;    //表示用户自定义变量名
+    public static final int TYPE_DIGITAL = 005;     //表示数字
+    public static final int TYPE_CONST_VARIABLE = 006;  //表示常量
+
 
     private String data = null;
     private StringBuffer symbolBuffer = new StringBuffer();
@@ -145,7 +148,12 @@ public class LexParser {
                 }
                 else {  //没有则表示当前字符串为用户自定义的非表中预定义
                     if ( symbolBuffer.toString().length() != 0 ) {
-                        symbol = new Symbol(symbolBuffer.toString(), TYPE_VARIABLE);
+                        if ( isDigital(symbolBuffer.toString()) ) {
+                            symbol = new Symbol(symbolBuffer.toString(), TYPE_DIGITAL);
+                        }
+                        else {
+                            symbol = new Symbol(symbolBuffer.toString(), TYPE_VARIABLE);
+                        }
                         symbolSet.add(symbol);
                         System.out.println(symbol);
                     }
@@ -184,7 +192,7 @@ public class LexParser {
                         while( !(data.charAt(++index)+"").equals("\"") ) {
                             quoteStr.append(data.charAt(index));
                         }
-                        symbol = new Symbol(quoteStr.toString(), TYPE_VARIABLE);
+                        symbol = new Symbol(quoteStr.toString(), TYPE_CONST_VARIABLE);
                         symbolSet.add(symbol);
                         System.out.println(symbol);
                         System.out.println(judgeSymbol("\""));
@@ -193,6 +201,10 @@ public class LexParser {
             }
         }
         return this;
+    }
+
+    private boolean isDigital(String str) {
+        return str.matches("[0-9]+");
     }
 
     private Symbol judgeSymbol(char character) {
